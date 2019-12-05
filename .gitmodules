@@ -1,0 +1,3 @@
+[submodule "soscl"]
+	path = soscl
+	url = https://github.com/sifive/soscl

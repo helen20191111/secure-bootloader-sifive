@@ -201,9 +201,9 @@ SECTIONS
 		PROVIDE( _heap_end = . );
 	} >ram AT>ram :ram
 
-	__sbcm_free_start_addr = .;
-	__sbcm_free_end_addr = __section_protocol_ram_end - __fake_otp_size;
-	__sbcm_free_size = __sbcm_free_end_addr - __sbcm_free_start_addr;
+	__sbrm_free_start_addr = .;
+	__sbrm_free_end_addr = __section_protocol_ram_end - __fake_otp_size;
+	__sbrm_free_size = __sbrm_free_end_addr - __sbrm_free_start_addr;
 
 	.otp.mapping	ORIGIN(otp) :
 	{
