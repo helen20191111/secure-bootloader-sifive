@@ -11,8 +11,8 @@
 #include <common.h>
 #include <patch.h>
 /** Other includes */
-#include <scl_retdefs.h>
-#include <scl_hash_sha384.h>
+#include <soscl_retdefs.h>
+#include <soscl_hash_sha384.h>
 /** Local includes */
 #include <sp_public.h>
 #include <sp_internal.h>

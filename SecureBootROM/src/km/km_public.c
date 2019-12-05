@@ -10,10 +10,10 @@
 #include <common.h>
 #include <otp_mapping.h>
 #include <patch.h>
-#include <scl_retdefs.h>
-#include <scl_ecc.h>
-#include <scl_hash_sha384.h>
-#include <scl_ecdsa.h>
+#include <soscl_retdefs.h>
+#include <soscl_ecc.h>
+#include <soscl_hash_sha384.h>
+#include <soscl_ecdsa.h>
 #include <sbrm_public.h>
 /** Local includes */
 #include <km_public.h>
@@ -22,7 +22,7 @@
 /** External declarations */
 extern uint8_t ssk[2 * C_EDCSA384_SIZE];
 extern uint8_t stk[2 * C_EDCSA384_SIZE];
-extern scl_type_curve scl_secp384r1;
+extern soscl_type_curve soscl_secp384r1;
 extern t_context context;
 /** Local declarations */
 /** SCL work buffer - size 8 kBytes / 2k (32bits) Words */
@@ -64,14 +64,14 @@ int32_t km_init(void *p_ctx, void *p_in, uint32_t length_in)
 		/** For initialization, default signing key is SSK */
 		km_context.sign_key.id = N_KM_KEYID_SSK;
 		/** Initializing SCL work buffer */
-		if( !p_context->p_scl_work_buffer )
+		if( !p_context->p_soscl_work_buffer )
 		{
 			/** Pointer should not be null */
 			err = GENERIC_ERR_NULL_PTR;
 			goto km_init_out;
 		}
 		/**  */
-		err = scl_init((word_type*)p_context->p_scl_work_buffer, ( p_context->scl_work_buffer_size / sizeof(word_type) ));
+		err = soscl_init((word_type*)p_context->p_soscl_work_buffer, ( p_context->soscl_work_buffer_size / sizeof(word_type) ));
 		if( err )
 		{
 			/** Error initializing SCL library */
@@ -80,7 +80,7 @@ int32_t km_init(void *p_ctx, void *p_in, uint32_t length_in)
 		else
 		{
 			/**  */
-			if( !p_context->p_scl_hash_ctx )
+			if( !p_context->p_soscl_hash_ctx )
 			{
 				/** Pointer should not be null */
 				err = GENERIC_ERR_NULL_PTR;
@@ -88,7 +88,7 @@ int32_t km_init(void *p_ctx, void *p_in, uint32_t length_in)
 			}
 			/** Then initialize hash context */
 			/** Initialize cryptographic library context for hash computation */
-			err = scl_sha384_init((scl_sha384_ctx_t*)p_context->p_scl_hash_ctx);
+			err = soscl_sha384_init((soscl_sha384_ctx_t*)p_context->p_soscl_hash_ctx);
 			if ( err )
 			{
 				/** Error in cryptographic initialization */
@@ -501,8 +501,8 @@ int32_t km_verify_signature(uint8_t *p_message,
 {
 	uint8_t										loop;
 	int32_t										err[C_KM_VERIFY_LOOP_MAX];
-	scl_type_ecc_uint8_t_affine_point			Q;
-	scl_type_ecdsa_signature					signature;
+	soscl_type_ecc_uint8_t_affine_point			Q;
+	soscl_type_ecdsa_signature					signature;
 
 
 	/** Initialize error array */
@@ -550,12 +550,12 @@ int32_t km_verify_signature(uint8_t *p_message,
 			Q.y = key.ecdsa.p_y;
 			signature.r = p_signature;
 			signature.s = p_signature + C_EDCSA384_SIZE;
-			err[loop] = scl_ecdsa_verification(Q,
+			err[loop] = soscl_ecdsa_verification(Q,
 											signature,
-											scl_sha384,
+											soscl_sha384,
 											p_message,
 											mess_length,
-											&scl_secp384r1,
+											&soscl_secp384r1,
 											( SCL_MSG_INPUT_TYPE << SCL_INPUT_SHIFT ) ^
 											( SCL_SHA384_ID << SCL_HASH_SHIFT ));
 		}

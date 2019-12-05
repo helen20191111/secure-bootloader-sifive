@@ -8,8 +8,8 @@
 #include <string.h>
 #include <errors.h>
 #include <otp_mapping.h>
-#include <scl_selftests.h>
-#include <scl_retdefs.h>
+#include <soscl_selftests.h>
+#include <soscl_retdefs.h>
 /** Other includes */
 #include <km_public.h>
 #include <pi_public.h>
@@ -58,7 +58,7 @@ int32_t sbrm_selftest(t_context *p_ctx)
 		goto sbrm_selftest_out;
 	}
 	/** Call ECDSA selftest */
-	err = scl_ecdsa_p384r1_sha384_selftest();
+	err = soscl_ecdsa_p384r1_sha384_selftest();
 	if ( SCL_OK != err )
 	{
 		/** ECDSA tests failed, can't trust platform */

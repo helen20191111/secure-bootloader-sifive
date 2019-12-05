@@ -10,10 +10,10 @@
 #include <otp_mapping.h>
 #include <metal/gpio.h>
 /** Other includes */
-#include <scl_retdefs.h>
-#include <scl_ecc.h>
-#include <scl_hash_sha384.h>
-#include <scl_ecdsa.h>
+#include <soscl_retdefs.h>
+#include <soscl_ecc.h>
+#include <soscl_hash_sha384.h>
+#include <soscl_ecdsa.h>
 #include <km_public.h>
 #include <sbrm_internal.h>
 /** Local includes */
@@ -22,7 +22,7 @@
 
 /** External declarations */
 extern t_context context;
-extern scl_type_curve scl_secp384r1;
+extern soscl_type_curve soscl_secp384r1;
 extern uint32_t __sbrm_free_start_addr;
 extern uint32_t __sbrm_free_end_addr;
 /** Local declarations */
@@ -488,8 +488,8 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 	t_key_data									*p_key_data;
 	e_km_keyid									key_id;
 	u_km_key									key;
-	scl_type_ecc_uint8_t_affine_point			Q;
-	scl_type_ecdsa_signature					signature;
+	soscl_type_ecc_uint8_t_affine_point			Q;
+	soscl_type_ecdsa_signature					signature;
 
 
 	/** Check input pointer */
@@ -498,7 +498,7 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 		/** Pointer should not be null */
 		err = GENERIC_ERR_NULL_PTR;
 	}
-	else if( !p_ctx->p_scl_hash_ctx )
+	else if( !p_ctx->p_soscl_hash_ctx )
 	{
 		/**  */
 		err = N_SP_ERR_NOT_INITIALIZED;
@@ -508,7 +508,7 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 		/** KM context pointer should not be null */
 		err = GENERIC_ERR_CRITICAL;
 	}
-	else if( !p_ctx->p_scl_hash_ctx )
+	else if( !p_ctx->p_soscl_hash_ctx )
 	{
 		/** SCL hash structure must not be null */
 		err = GENERIC_ERR_INVAL;
@@ -576,7 +576,7 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 				/** Now check signature */
 				/** Process hash digest on message */
 				/** Initialization */
-				err = scl_sha384_init((scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx);
+				err = soscl_sha384_init((soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx);
 				if( err )
 				{
 					/** Critical error */
@@ -587,12 +587,12 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 				if( sp_context.sup.p_rx_hdr->segment_elmnt.command_length )
 				{
 					/** 'address' field must be counted */
-					err = scl_sha384_core((scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx, (uint8_t*)sp_context.sup.p_rx_hdr, sizeof(t_sp_sup_rx_pckt_hdr));
+					err = soscl_sha384_core((soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx, (uint8_t*)sp_context.sup.p_rx_hdr, sizeof(t_sp_sup_rx_pckt_hdr));
 				}
 				else
 				{
 					/** 'address' field must not be counted, because there's no 'address' field */
-					err = scl_sha384_core((scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx, (uint8_t*)sp_context.sup.p_rx_hdr, ( sizeof(t_sp_sup_rx_pckt_hdr) - sizeof(uint32_t) ));
+					err = soscl_sha384_core((soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx, (uint8_t*)sp_context.sup.p_rx_hdr, ( sizeof(t_sp_sup_rx_pckt_hdr) - sizeof(uint32_t) ));
 				}
 				if( err )
 				{
@@ -605,7 +605,7 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 				if( sp_context.sup.p_rx_hdr->segment_elmnt.command_length )
 				{
 					/** Let's process the real payload - without 'address' field then */
-					err = scl_sha384_core((scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx, (uint8_t*)sp_context.sup.payload.p_data, sp_context.sup.payload.size);
+					err = soscl_sha384_core((soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx, (uint8_t*)sp_context.sup.payload.p_data, sp_context.sup.payload.size);
 					if( err )
 					{
 						/** Critical error */
@@ -614,7 +614,7 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 					}
 				}
 				/** Process security elements now - rawly , remove signature size */
-				err = scl_sha384_core((scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx, (uint8_t*)sp_context.security.uid, ( sp_context.security.total_size - ( 2 * C_EDCSA384_SIZE ) ));
+				err = soscl_sha384_core((soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx, (uint8_t*)sp_context.security.uid, ( sp_context.security.total_size - ( 2 * C_EDCSA384_SIZE ) ));
 				if( err )
 				{
 					/** Critical error */
@@ -623,7 +623,7 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 				}
 				/** Then finish computation */
 				memset((void*)p_ctx->digest, 0x00, C_SP_SUP_HASH_SIZE_IN_BYTES);
-				err = scl_sha384_finish(p_ctx->digest, (scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx);
+				err = soscl_sha384_finish(p_ctx->digest, (soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx);
 				if( err )
 				{
 					/** Critical error */
@@ -637,12 +637,12 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 				signature.r = p_local_signature;
 				signature.s = p_local_signature + C_EDCSA384_SIZE;
 				/** Call SCL ECDSA verification function */
-				err = scl_ecdsa_verification(Q,
+				err = soscl_ecdsa_verification(Q,
 												signature,
-												&scl_sha384,
+												&soscl_sha384,
 												p_ctx->digest,
 												C_SP_SUP_HASH_SIZE_IN_BYTES,
-												&scl_secp384r1,
+												&soscl_secp384r1,
 												( SCL_HASH_INPUT_TYPE << SCL_INPUT_SHIFT ) ^
 												( SCL_SHA384_ID << SCL_HASH_SHIFT ));
 				if( err )
@@ -733,7 +733,7 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 				 * 'key' has been updated before */
 				/** Process hash digest on message */
 				/** Initialization */
-				err = scl_sha384_init((scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx);
+				err = soscl_sha384_init((soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx);
 				if( err )
 				{
 					/** Critical error */
@@ -744,12 +744,12 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 				if( sp_context.sup.p_rx_hdr->segment_elmnt.command_length )
 				{
 					/** 'address' field must be counted */
-					err = scl_sha384_core((scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx, (uint8_t*)sp_context.sup.p_rx_hdr, sizeof(t_sp_sup_rx_pckt_hdr));
+					err = soscl_sha384_core((soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx, (uint8_t*)sp_context.sup.p_rx_hdr, sizeof(t_sp_sup_rx_pckt_hdr));
 				}
 				else
 				{
 					/** 'address' field must not be counted */
-					err = scl_sha384_core((scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx, (uint8_t*)sp_context.sup.p_rx_hdr, ( sizeof(t_sp_sup_rx_pckt_hdr) - sizeof(uint32_t) ));
+					err = soscl_sha384_core((soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx, (uint8_t*)sp_context.sup.p_rx_hdr, ( sizeof(t_sp_sup_rx_pckt_hdr) - sizeof(uint32_t) ));
 				}
 				if( err )
 				{
@@ -762,7 +762,7 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 				if( sp_context.sup.p_rx_hdr->segment_elmnt.command_length )
 				{
 					/** Let's process the real payload - without 'address' field then */
-					err = scl_sha384_core((scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx, (uint8_t*)sp_context.sup.payload.p_data, sp_context.sup.payload.size);
+					err = soscl_sha384_core((soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx, (uint8_t*)sp_context.sup.payload.p_data, sp_context.sup.payload.size);
 					if( err )
 					{
 						/** Critical error */
@@ -771,7 +771,7 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 					}
 				}
 				/** Process security elements now - rawly */
-				err = scl_sha384_core((scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx, (uint8_t*)sp_context.security.uid, ( sp_context.security.total_size - ( 2 * C_EDCSA384_SIZE ) ));
+				err = soscl_sha384_core((soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx, (uint8_t*)sp_context.security.uid, ( sp_context.security.total_size - ( 2 * C_EDCSA384_SIZE ) ));
 				if( err )
 				{
 					/** Critical error */
@@ -780,7 +780,7 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 				}
 				/** Then finish computation */
 				memset((void*)p_ctx->digest, 0x00, C_SP_SUP_HASH_SIZE_IN_BYTES);
-				err = scl_sha384_finish(p_ctx->digest, (scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx);
+				err = soscl_sha384_finish(p_ctx->digest, (soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx);
 				if( err )
 				{
 					/** Critical error */
@@ -794,12 +794,12 @@ int32_t sp_sup_check_security(t_context *p_ctx)
 				signature.r = p_local_signature;
 				signature.s = p_local_signature + C_EDCSA384_SIZE;
 				/** Call SCL ECDSA verification function */
-				err = scl_ecdsa_verification(Q,
+				err = soscl_ecdsa_verification(Q,
 												signature,
-												scl_sha384,
+												soscl_sha384,
 												p_ctx->digest,
 												C_SP_SUP_HASH_SIZE_IN_BYTES,
-												&scl_secp384r1,
+												&soscl_secp384r1,
 												( SCL_HASH_INPUT_TYPE << SCL_INPUT_SHIFT ) ^
 												( SCL_SHA384_ID << SCL_HASH_SHIFT ));
 				if( err )
@@ -1082,8 +1082,8 @@ int32_t sp_treat_writecsk(t_context *p_ctx, uint8_t *p_data, uint32_t length)
 	t_key_data									*p_csk_data;
 	t_km_context								*p_km_ctx;
 	u_km_key									key;
-	scl_type_ecc_uint8_t_affine_point			Q;
-	scl_type_ecdsa_signature					signature;
+	soscl_type_ecc_uint8_t_affine_point			Q;
+	soscl_type_ecdsa_signature					signature;
 
 
 	/** Check input parameters */
@@ -1180,12 +1180,12 @@ int32_t sp_treat_writecsk(t_context *p_ctx, uint8_t *p_data, uint32_t length)
 		signature.r = p_csk_data->certificate;
 		signature.s = p_csk_data->certificate + C_EDCSA384_SIZE;
 		/** Check certificate */
-		err = scl_ecdsa_verification(Q,
+		err = soscl_ecdsa_verification(Q,
 										signature,
-										&scl_sha384,
+										&soscl_sha384,
 										(uint8_t*)p_csk_data,
 										sizeof(t_key_data) - ( 2 * C_EDCSA384_SIZE ),
-										&scl_secp384r1,
+										&soscl_secp384r1,
 										( SCL_MSG_INPUT_TYPE << SCL_INPUT_SHIFT ) ^
 										( SCL_SHA384_ID << SCL_HASH_SHIFT ));
 		if( err )
@@ -1216,8 +1216,8 @@ int32_t sp_treat_updatecsk(t_context *p_ctx, uint8_t *p_data, uint32_t length)
 	t_key_data									*p_csk_data;
 	t_km_context								*p_km_ctx;
 	u_km_key									key;
-	scl_type_ecc_uint8_t_affine_point			Q;
-	scl_type_ecdsa_signature					signature;
+	soscl_type_ecc_uint8_t_affine_point			Q;
+	soscl_type_ecdsa_signature					signature;
 
 
 	/** Check input parameters */
@@ -1257,12 +1257,12 @@ int32_t sp_treat_updatecsk(t_context *p_ctx, uint8_t *p_data, uint32_t length)
 		signature.r = (uint8_t*)( p_data + length - ( 2 * C_EDCSA384_SIZE ) );
 		signature.s = signature.r + C_EDCSA384_SIZE;
 		/** Check certificate */
-		err = scl_ecdsa_verification(Q,
+		err = soscl_ecdsa_verification(Q,
 										signature,
-										&scl_sha384,
+										&soscl_sha384,
 										(uint8_t*)p_data,
 										length - ( 2 * C_EDCSA384_SIZE ),
-										&scl_secp384r1,
+										&soscl_secp384r1,
 										( SCL_MSG_INPUT_TYPE << SCL_INPUT_SHIFT ) ^
 										( SCL_SHA384_ID << SCL_HASH_SHIFT ));
 		if( err )
@@ -1348,12 +1348,12 @@ int32_t sp_treat_updatecsk(t_context *p_ctx, uint8_t *p_data, uint32_t length)
 		signature.r = p_csk_data->certificate;
 		signature.s = p_csk_data->certificate + C_EDCSA384_SIZE;
 		/** Check certificate */
-		err = scl_ecdsa_verification(Q,
+		err = soscl_ecdsa_verification(Q,
 										signature,
-										&scl_sha384,
+										&soscl_sha384,
 										(uint8_t*)p_csk_data,
 										sizeof(t_key_data) - ( 2 * C_EDCSA384_SIZE ),
-										&scl_secp384r1,
+										&soscl_secp384r1,
 										( SCL_MSG_INPUT_TYPE << SCL_INPUT_SHIFT ) ^
 										( SCL_SHA384_ID << SCL_HASH_SHIFT ));
 		if( err )

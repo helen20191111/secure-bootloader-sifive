@@ -10,10 +10,10 @@
 #include <patch.h>
 #include <otp_mapping.h>
 /** Other includes */
-#include <scl_retdefs.h>
-#include <scl_ecc.h>
-#include <scl_hash_sha384.h>
-#include <scl_ecdsa.h>
+#include <soscl_retdefs.h>
+#include <soscl_ecc.h>
+#include <soscl_hash_sha384.h>
+#include <soscl_ecdsa.h>
 #include <km_public.h>
 #include <sbrm_public.h>
 /** Local includes */
@@ -22,7 +22,7 @@
 
 /** External declarations */
 extern uintmax_t __iflash_start;
-extern scl_type_curve scl_secp384r1;
+extern soscl_type_curve soscl_secp384r1;
 /** Local declarations */
 __attribute__((section(".bss"))) t_slbv_context slbv_context;
 __attribute__((section(".data.patch.table"))) t_api_fcts slbv_fct_ptr =
@@ -191,8 +191,8 @@ int32_t sflv_check_slb(t_context *p_ctx)
 	uint32_t									rom_version = 0;
 	volatile uint32_t							tmp_size = 0;
 	u_km_key									key;
-	scl_type_ecc_uint8_t_affine_point			Q;
-	scl_type_ecdsa_signature					signature;
+	soscl_type_ecc_uint8_t_affine_point			Q;
+	soscl_type_ecdsa_signature					signature;
 	volatile uint8_t							*p_tmp;
 	t_km_context								*p_km_ctx;
 
@@ -330,7 +330,7 @@ int32_t sflv_check_slb(t_context *p_ctx)
 			goto sflv_check_slb_out;
 		}
 		/** Initialization oh hash buffer */
-		err = scl_sha384_init((scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx);
+		err = soscl_sha384_init((soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx);
 		if( err )
 		{
 			/** Critical error */
@@ -340,7 +340,7 @@ int32_t sflv_check_slb(t_context *p_ctx)
 		/** Hash header */
 		p_tmp = (volatile uint8_t*)slbv_context.p_hdr;
 		tmp_size = (volatile uint32_t)sizeof(t_secure_header) - C_SIGNATURE_MAX_SIZE;
-		err = scl_sha384_core((scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx,
+		err = soscl_sha384_core((soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx,
 								(uint8_t*)p_tmp,
 								(uint32_t)tmp_size);
 		if( err )
@@ -353,7 +353,7 @@ int32_t sflv_check_slb(t_context *p_ctx)
 		p_tmp = (volatile uint8_t*)slbv_context.p_hdr + sizeof(t_secure_header) + slbv_context.p_hdr->fimware_start_offset;
 		tmp_size = (volatile uint32_t)slbv_context.p_hdr->secure_appli_image_size - sizeof(t_secure_header);
 		/** Hash binary image */
-		err = scl_sha384_core((scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx,
+		err = soscl_sha384_core((soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx,
 								(uint8_t*)p_tmp,
 								(uint32_t)tmp_size);
 		if( err )
@@ -364,7 +364,7 @@ int32_t sflv_check_slb(t_context *p_ctx)
 		}
 		/** Then finish computation */
 		memset((void*)p_ctx->digest, 0x00, SCL_SHA384_BYTE_HASHSIZE);
-		err = scl_sha384_finish(p_ctx->digest, (scl_sha384_ctx_t*)p_ctx->p_scl_hash_ctx);
+		err = soscl_sha384_finish(p_ctx->digest, (soscl_sha384_ctx_t*)p_ctx->p_soscl_hash_ctx);
 		if( err )
 		{
 			/** Critical error */
@@ -377,12 +377,12 @@ int32_t sflv_check_slb(t_context *p_ctx)
 		signature.r = (uint8_t*)slbv_context.p_hdr->signature;
 		signature.s = signature.r + C_EDCSA384_SIZE;
 		/** Check certificate */
-		err = scl_ecdsa_verification(Q,
+		err = soscl_ecdsa_verification(Q,
 										signature,
-										&scl_sha384,
+										&soscl_sha384,
 										p_ctx->digest,
 										SCL_SHA384_BYTE_HASHSIZE,
-										&scl_secp384r1,
+										&soscl_secp384r1,
 										( SCL_HASH_INPUT_TYPE << SCL_INPUT_SHIFT ) ^
 										( SCL_SHA384_ID << SCL_HASH_SHIFT ));
 		if( err )

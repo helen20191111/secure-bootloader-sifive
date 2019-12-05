@@ -17,8 +17,8 @@
 #endif /* _WITH_FREEDOM_METAL_ */
 /** Other includes */
 #include <patch.h>
-#include <scl_types.h>
-#include <scl_hash_sha384.h>
+#include <soscl_types.h>
+#include <soscl_hash_sha384.h>
 /** Local includes */
 
 /** External declarations */
@@ -311,10 +311,10 @@ typedef struct
 	t_api_fcts									*p_sp_fct_ptr;
 	/** Pointers on different useful buffers */
 	/** Pointer on SCL work buffer */
-	volatile void								*p_scl_work_buffer;
-	uint32_t									scl_work_buffer_size;
+	volatile void								*p_soscl_work_buffer;
+	uint32_t									soscl_work_buffer_size;
 	/** Pointer on SCL hash context structure */
-	volatile void								*p_scl_hash_ctx;
+	volatile void								*p_soscl_hash_ctx;
 	/** Buffer for has computation spreadly used in SBR - it must be aligned, mandatory for SCL */
 	__attribute__((aligned(0x10))) uint8_t		digest[SCL_SHA384_BYTE_HASHSIZE];
 

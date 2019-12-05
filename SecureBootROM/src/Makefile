@@ -29,11 +29,11 @@ SBR_INCS_DIR += -I ../include/sbrm
 SBR_INCS_DIR += -I ../include/slbv
 SBR_INCS_DIR += -I ../include/sp
 
-SCL_DIR = ../libraries/scl
+SCL_DIR = ../libraries/soscl
 SCL_INC_DIR = -I $(SCL_DIR)/include
-SCL_INC_DIR += -I $(SCL_DIR)/include/scl
+SCL_INC_DIR += -I $(SCL_DIR)/include/soscl
 
-SCL_LIBRARY = $(SCL_DIR)/../libscl.a
+SCL_LIBRARY = $(SCL_DIR)/../libsoscl.a
 
 # List of C source files
 APP_SRC = $(wildcard *.c)
@@ -64,7 +64,7 @@ PROGRAM_OBJS = \
 
 # Add SCL to link
 SBL_LDFLAGS = -L$(SCL_DIR)/..
-SBL_LDLIBS = -Wl,--start-group -lscl -Wl,--end-group
+SBL_LDLIBS = -Wl,--start-group -lsoscl -Wl,--end-group
 
 # Virtual path for compiling
 VPATH += $(SBR_DIR)/daim

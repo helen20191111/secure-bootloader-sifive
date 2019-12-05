@@ -9,7 +9,7 @@
 #include <errors.h>
 #include <patch.h>
 /** Other includes */
-#include <scl_hash_sha384.h>
+#include <soscl_hash_sha384.h>
 #include <km_public.h>
 #include <pi_public.h>
 #include <ppm_public.h>
@@ -29,8 +29,8 @@ extern t_api_fcts sbrm_fct_ptr;
 extern t_api_fcts slbv_fct_ptr;
 extern t_api_fcts sp_fct_ptr;
 /** Local declarations */
-__attribute__((section(".bss"),aligned(0x10))) uint32_t scl_work_buffer[C_CRYPTO_LIB_BUFFER_SIZE_INT];
-__attribute__((section(".bss"),aligned(0x10))) scl_sha384_ctx_t hash_ctx;
+__attribute__((section(".bss"),aligned(0x10))) uint32_t soscl_work_buffer[C_CRYPTO_LIB_BUFFER_SIZE_INT];
+__attribute__((section(".bss"),aligned(0x10))) soscl_sha384_ctx_t hash_ctx;
 __attribute__((section(".bss"))) volatile t_context context;
 
 /******************************************************************************/
@@ -60,9 +60,9 @@ int32_t context_initialization(t_context *p_ctx)
 		p_ctx->p_slbv_fct_ptr = (t_api_fcts*)&slbv_fct_ptr;
 		p_ctx->p_sp_fct_ptr = (t_api_fcts*)&sp_fct_ptr;
 		/** Assignment for data pointers */
-		p_ctx->p_scl_work_buffer = (volatile void*)scl_work_buffer;
-		p_ctx->scl_work_buffer_size = sizeof(scl_work_buffer);
-		p_ctx->p_scl_hash_ctx = (volatile void*)&hash_ctx;
+		p_ctx->p_soscl_work_buffer = (volatile void*)soscl_work_buffer;
+		p_ctx->soscl_work_buffer_size = sizeof(soscl_work_buffer);
+		p_ctx->p_soscl_hash_ctx = (volatile void*)&hash_ctx;
 		/** No error */
 		err = NO_ERROR;
 	}

@@ -12,7 +12,7 @@
 #include <metal/gpio.h>
 #include <common.h>
 /** Other includes */
-#include <scl_hash_sha384.h>
+#include <soscl_hash_sha384.h>
 #include <sbrm_public.h>
 #include <ppm_public.h>
 #include <km_public.h>
