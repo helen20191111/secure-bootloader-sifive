@@ -11,7 +11,7 @@ In this folder is gathered short documentations about Secure Boot ROM part of Se
 * [SecureBoot_OTP_mapping.pdf](https://github.com/sifive/secure-bootloader-sifive/blob/master/Documents/SecureBoot-OTP_mappin.pdf) : Basic mapping of SBR parameters in OTP.
 
 ## Secure Boot ROM
-This repository only presents source code of Secure Boot ROM for mono-core platform. Having Multi-cores Secure Boot ROM induces other mechanisms/architecture not introduced in this delivery.
+This repository only presents source code of Secure Boot ROM for ***mono-core platforms***. Having Multi-cores Secure Boot ROM induces other mechanisms/architecture not introduced in this delivery.
 
 
 ## Secure Flexible Loader
