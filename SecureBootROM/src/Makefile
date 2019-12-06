@@ -29,11 +29,11 @@ SBR_INCS_DIR += -I ../include/sbrm
 SBR_INCS_DIR += -I ../include/slbv
 SBR_INCS_DIR += -I ../include/sp
 
-SCL_DIR = ../libraries/soscl
+SCL_DIR = ../../soscl
 SCL_INC_DIR = -I $(SCL_DIR)/include
 SCL_INC_DIR += -I $(SCL_DIR)/include/soscl
 
-SCL_LIBRARY = $(SCL_DIR)/../libsoscl.a
+SCL_LIBRARY = $(SCL_DIR)/libsoscl.a
 
 # List of C source files
 APP_SRC = $(wildcard *.c)
