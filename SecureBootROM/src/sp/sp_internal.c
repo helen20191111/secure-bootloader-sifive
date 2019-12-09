@@ -1,6 +1,15 @@
-/* Copyright 2019 SiFive, Inc */
-/* SPDX-License-Identifier: Apache-2.0 */
-
+/** sp_private.c */
+/**
+ * Copyright 2019 SiFive
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+*/
 
 
 /** Global includes */
@@ -89,7 +98,6 @@ void sp_uart_isr(int32_t id, void *data)
 	else
 	{
 		/** Mask interruption */
-//		M_UART_RX_DISABLE(sp_context.port.uart.reg_uart);
 		M_UART_MASK_RX_IRQ(sp_context.port.uart.reg_uart);
 		/** Remove threshold value */
 		sp_context.port.uart.reg_uart->rx_ctrl &= ~C_UART_RXCTRL_RXCNT_MASK;
@@ -115,7 +123,6 @@ void sp_uart_isr(int32_t id, void *data)
 			sp_context.communication.dummy_mode = FALSE;
 		}
 		/** Unmask interruption */
-//		M_UART_RX_ENABLE(sp_context.port.uart.reg_uart);
 		M_UART_UNMASK_RX_IRQ(sp_context.port.uart.reg_uart);
 	}
 	/** End Of Function */
@@ -153,7 +160,6 @@ int32_t sp_uart_receive_buffer(t_context *p_ctx, uint8_t *p_data, uint32_t *p_si
 			{
 				/** First mask RX interruption */
 				/** Disable interrupt */
-//				sp_context.port.uart.reg_uart->ie &= ~( C_UART_IE_TXWM_MASK | C_UART_IE_RXWM_MASK );
 				M_UART_MASK_RX_IRQ(sp_context.port.uart.reg_uart);
 				M_UART_MASK_TX_IRQ(sp_context.port.uart.reg_uart);
 				/** Retrieve data from dummy buffer */
@@ -169,7 +175,6 @@ int32_t sp_uart_receive_buffer(t_context *p_ctx, uint8_t *p_data, uint32_t *p_si
 					memcpy((void*)dummy.buffer, (const void*)&dummy.buffer[*p_size], dummy.index);
 				}
 				/** Enable interrupt */
-//				sp_context.port.uart.reg_uart->ie = C_UART_IE_TXWM_MASK;
 				M_UART_UNMASK_RX_IRQ(sp_context.port.uart.reg_uart);
 				/** Keep dummy mode */
 				sp_context.communication.dummy_mode = TRUE;
@@ -179,7 +184,6 @@ int32_t sp_uart_receive_buffer(t_context *p_ctx, uint8_t *p_data, uint32_t *p_si
 			else if( dummy.index < *p_size )
 			{
 				/** Disable interrupt */
-//				sp_context.port.uart.reg_uart->ie &= ~( C_UART_IE_TXWM_MASK | C_UART_IE_RXWM_MASK );
 				M_UART_MASK_RX_IRQ(sp_context.port.uart.reg_uart);
 				M_UART_MASK_TX_IRQ(sp_context.port.uart.reg_uart);
 				/** Retrieve data from dummy buffer */
@@ -203,8 +207,6 @@ int32_t sp_uart_receive_buffer(t_context *p_ctx, uint8_t *p_data, uint32_t *p_si
 			/** Dummy mode not expected */
 			sp_context.communication.dummy_mode = FALSE;
 		}
-//		/** Let's disable TX */
-//		M_UART_TX_DISABLE(sp_context.port.uart.reg_uart);
 	    /** Lets enable the UART interrupt */
 		/** Remove previous threshold value for reception */
 		sp_context.port.uart.reg_uart->rx_ctrl &= ~C_UART_RXCTRL_RXCNT_MASK;
@@ -219,10 +221,8 @@ int32_t sp_uart_receive_buffer(t_context *p_ctx, uint8_t *p_data, uint32_t *p_si
 		}
 		sp_context.port.uart.reg_uart->rx_ctrl = ( ( ( sp_context.communication.threshold - 1 ) << C_UART_RXCTRL_RXCNT_OFST ) & C_UART_RXCTRL_RXCNT_MASK );
 		/** Enable RX */
-//		sp_context.port.uart.reg_uart->rx_ctrl |= C_UART_RXCTRL_RXEN_MASK;
 		M_UART_RX_ENABLE(sp_context.port.uart.reg_uart);
 		/** Enable interrupt */
-//		sp_context.port.uart.reg_uart->ie = C_UART_IE_RXWM_MASK;
 		M_UART_UNMASK_RX_IRQ(sp_context.port.uart.reg_uart);
 	    /** Wait until reception is over */
 	    while ( sp_context.communication.lasting > 0 )
@@ -261,33 +261,12 @@ int32_t sp_uart_send_buffer(t_context *p_ctx, uint8_t *p_data, uint32_t size)
 	else
 	{
 		/** Disable RX */
-//		M_UART_MASK_RX_IRQ(sp_context.port.uart.reg_uart);
 		M_UART_RX_DISABLE(sp_context.port.uart.reg_uart);
 		/** Disable interrupt */
 		sp_context.port.uart.reg_uart->ie &= ~( C_UART_IE_TXWM_MASK | C_UART_IE_RXWM_MASK );
 		/** Enable TX */
 		M_UART_TX_ENABLE(sp_context.port.uart.reg_uart);
 		/** Sending loop */
-//		while( lasting && security );
-//		{
-//			if( !( C_UART_TXDATA_FULL_MASK & sp_context.port.uart.reg_uart->tx ) )
-//			{
-//				/** Fill FIFO */
-//				sp_context.port.uart.reg_uart->tx = (uint32_t)*p_src;
-//				/** Update counter */
-//				lasting--;
-//				/** Update pointer */
-//				p_src++;
-//				/** Re-arm security loop */
-//				security = 2 * size;
-//			}
-//			else
-//			{
-//				/** Decrement security loop */
-//				security--;
-//			}
-//		}
-		/**  */
 		for( i = 0;i < size; )
 		{
 			/** Get TX status */
@@ -326,7 +305,6 @@ int32_t sp_uart_send_buffer(t_context *p_ctx, uint8_t *p_data, uint32_t size)
 	/** End Of Function */
 	return err;
 }
-
 
 /******************************************************************************/
 int32_t sp_check_stimulus(t_context *p_ctx)
@@ -836,7 +814,7 @@ int32_t sp_sup_process_cmd(t_context *p_ctx, uint8_t **p_data, uint32_t *p_lengt
 		{
 			case N_SP_SUP_SEGMENT_TYPE_COPY:
 				/** Copy data to destination address */
-//				err = sp_treat_copy();
+
 				/** Already done when receiving command header - :/ */
 				err = NO_ERROR;
 				/** No specific data to return */
@@ -1048,7 +1026,6 @@ sp_sup_open_communication_out:
 	/** End Of Function */
 	return err;
 }
-
 
 /******************************************************************************/
 void sp_sup_close_communication(t_context *p_ctx)
@@ -1549,25 +1526,14 @@ int32_t sp_sup_cmd_hdr(uint8_t **p_data, uint32_t *p_size)
 				/** 'length' is given for all payload, don't forget to remove 32bits for 'address' fro mpacket payload */
 				*p_size = sp_context.sup.p_rx_hdr->segment_elmnt.command_length - sizeof(uint32_t);
 				/** Check boundaries */
-// _DBG_YG_
-//				if( ( (volatile uint32_t)&__sbrm_free_start_addr <= addr ) && ( (volatile uint32_t)&__sbrm_free_end_addr > ( addr + *p_size ) ) )
-//				{
-					/** Data to copy is in range */
-					*p_data = (uint8_t*)addr;
-					sp_context.sup.payload.p_data = *p_data;
-					sp_context.sup.payload.size = *p_size;
-					/** Prepare next step */
-					sp_context.sup.state_pkg = N_SP_SUP_RCV_PKT_SEG_PAYLOAD;
-					/** No error */
-					err = NO_ERROR;
-//				}
-//				else
-//				{
-//					/** Data will not fit into internal RAM */
-//					err = N_SP_ERR_SUP_NO_MORE_MEMORY;
-//					sp_context.sup.payload.p_data = 0;
-//					sp_context.sup.payload.size = 0;
-//				}
+				/** Data to copy is in range */
+				*p_data = (uint8_t*)addr;
+				sp_context.sup.payload.p_data = *p_data;
+				sp_context.sup.payload.size = *p_size;
+				/** Prepare next step */
+				sp_context.sup.state_pkg = N_SP_SUP_RCV_PKT_SEG_PAYLOAD;
+				/** No error */
+				err = NO_ERROR;
 				break;
 			}
 			case N_SP_SUP_SEGMENT_TYPE_WRITECSK:
@@ -1991,7 +1957,6 @@ sp_sup_packet_response_out:
 	/** End Of Function */
 	return err;
 }
-
 
 
 /******************************************************************************/

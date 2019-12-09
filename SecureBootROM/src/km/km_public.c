@@ -1,5 +1,16 @@
-/* Copyright 2019 SiFive, Inc */
-/* SPDX-License-Identifier: Apache-2.0 */
+/** km_public.c */
+/**
+ * Copyright 2019 SiFive
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+*/
+
 
 
 /** Global includes */
@@ -106,14 +117,12 @@ km_init_out:
 	return err;
 }
 
-
 /******************************************************************************/
 int32_t km_shutdown(void *p_ctx)
 {
 	/** End Of Function */
 	return NO_ERROR;
 }
-
 
 /******************************************************************************/
 void km_check_key(t_context *p_ctx)
@@ -138,12 +147,6 @@ void km_check_key(t_context *p_ctx)
 	{
 #warning When CUK is not valid, then SSK is used - It may not be appropriated
 		/**  */
-// _DBG_YG_
-//		offset = M_GET_OTP_ABSOLUTE_ADDR(*p_ctx, C_OTP_MAPPING_CUK_DESC_OFST);
-//		/* Retrieve CUK descriptor */
-//		memcpy((void*)&descriptor,
-//				(const void*)offset,
-//				C_OTP_MAPPING_CUK_DESC_SIZE);
 		err = sbrm_read_otp(p_ctx, C_OTP_MAPPING_CUK_DESC_OFST, (uint8_t*)&descriptor, C_OTP_MAPPING_CUK_DESC_SIZE);
 		if( err )
 		{
@@ -206,8 +209,6 @@ int32_t km_check_csk_slot(t_context *p_ctx, uint8_t slot)
 			/** Set return value if area is virgin */
 			err = NO_ERROR;
 			/** Point on requested CSK slot */
-// _DBG_YG_
-//			p_csk_area = (uint8_t*)(M_GET_OTP_ABSOLUTE_ADDR(context,( C_OTP_MAPPING_CSK_OFST + ( slot * C_OTP_MAPPING_CSK_AERA_SIZE ) ) ));
 			err = sbrm_read_otp(p_ctx,
 								( C_OTP_MAPPING_CSK_OFST + ( slot * C_OTP_MAPPING_CSK_AERA_SIZE ) ),
 								p_csk_area,
@@ -369,7 +370,7 @@ int32_t km_check_csk(t_context *p_ctx)
 			/** All slots are free, then no CSK is present */
 			err = N_KM_ERR_NO_CSK;
 		}
-#warning Ici, il y a sans doute des chemins à couvrir pour les index de csk valide et csk free slot
+		/** Explore other paths */
 	}
 km_check_csk_out:
 	/** End Of Function */
@@ -447,52 +448,6 @@ int32_t km_get_key(e_km_keyid key_id, u_km_key *p_key, uint32_t *p_key_size)
 }
 
 /******************************************************************************/
-//int32_t km_write_csk(uint8_t slot, t_key_data *p_cskdata)
-//{
-//	int32_t										err = GENERIC_ERR_UNKNOWN;
-//	u_km_key									key;
-//
-//	/** Check input parameters */
-//	if( !p_cskdata )
-//	{
-//		/** Input pointer is null */
-//		err = GENERIC_ERR_NULL_PTR;
-//	}
-//	else if( C_OTP_MAPPING_NB_CSK_SLOTS <= slot )
-//	{
-//		/** Slot doesn't fit ... */
-//		err = N_KM_ERR_INVAL;
-//	}
-//	else
-//	{
-//		uint32_t								mess_length;
-//		/**  */
-//		key.ecdsa.p_x = (uint8_t*)ssk;
-//		key.ecdsa.p_y = (uint8_t*)&ssk[C_EDCSA384_SIZE];
-//		/** Key size * 2 / 8bits */
-//		mess_length = ( p_cskdata->key_size_bits * 2 ) / 8 + C_KM_CSK_DESCR_CSK_SIZE_IN_BYTES;
-//		/** Check CSK signature - buffer where is stored CSK must gathers descriptor and CSK itself */
-//		err = km_verify_signature((uint8_t*)&p_cskdata->algo,
-//									mess_length,
-//									p_cskdata->certificate,
-//									N_KM_ALGO_ECDSA384,
-//									key);
-//		if( err )
-//		{
-//			/** CSK in message is not valid, it should not happen */
-//			err = N_KM_ERR_INVALID_SIGNATURE;
-//		}
-//		else
-//		{
-//			/** Now program CSK into designated slot, that should be free */
-//			err = km_program_csk(slot, p_cskdata);
-//		}
-//	}
-//	/** End Of Function */
-//	return err;
-//}
-
-/******************************************************************************/
 int32_t km_verify_signature(uint8_t *p_message,
 							uint32_t mess_length,
 							uint8_t *p_signature,
@@ -545,6 +500,7 @@ int32_t km_verify_signature(uint8_t *p_message,
 		/** Algorithm is supported then call cryptographic library */
 		for( loop = 0;loop < C_KM_VERIFY_LOOP_MAX;loop++ )
 		{
+			/** ECDSA384 only for now */
 			/** Set parameters */
 			Q.x = key.ecdsa.p_x;
 			Q.y = key.ecdsa.p_y;
